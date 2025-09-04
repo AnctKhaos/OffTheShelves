@@ -1,0 +1,644 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Off the Shelf — E-learning Repository (PLM Nursing)</title>
+  <style>
+    :root{
+      --bg:#0f1724; --card:#0b1220; --accent:#5eead4; --muted:#94a3b8;
+      --glass: rgba(255,255,255,0.03);
+      --maxw:1100px;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      color: #e6eef8;
+    }
+    body{
+      margin:0; background:linear-gradient(180deg,#071024 0%, #071a2a 100%); min-height:100vh;
+      display:flex; align-items:flex-start; justify-content:center; padding:24px;
+    }
+    .wrap{width:100%; max-width:var(--maxw);}
+    header{display:flex; gap:16px; align-items:center; margin-bottom:18px;}
+    header h1{font-size:20px;margin:0}
+    .grid{display:grid; grid-template-columns: 360px 1fr; gap:18px;}
+    .card{background:var(--card); padding:14px; border-radius:12px; box-shadow:0 6px 18px rgba(2,6,23,0.6);}
+    label{display:block; font-size:13px; color:var(--muted); margin-bottom:6px}
+    input, select, textarea{width:100%; padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:var(--glass); color:inherit; outline:none;}
+    button{cursor:pointer; padding:8px 10px; border-radius:8px; border:0; background:var(--accent); color:#042024; font-weight:600;}
+    .muted{color:var(--muted); font-size:13px}
+    .small{font-size:12px}
+    .uploader .row{display:flex; gap:8px; margin-bottom:10px}
+    .meta-list{display:flex; flex-direction:column; gap:8px}
+    .files-list{display:flex; flex-direction:column; gap:8px}
+    .file-item{display:flex; justify-content:space-between; gap:12px; padding:10px; background:rgba(255,255,255,0.02); border-radius:8px; align-items:center;}
+    .meta{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+    .badge{background:rgba(255,255,255,0.03); padding:4px 8px; border-radius:999px; font-size:12px; color:var(--muted)}
+    .actions{display:flex; gap:8px}
+    .search-row{display:flex; gap:8px; align-items:center; margin-bottom:12px;}
+    .preview{padding:12px;background:rgba(0,0,0,0.35); border-radius:10px; min-height:180px;}
+    footer{margin-top:14px; color:var(--muted); font-size:13px}
+    .tag{background:rgba(94,234,212,0.08); color:var(--accent); padding:4px 8px; border-radius:8px; font-weight:600}
+    .flex{display:flex; gap:8px; align-items:center}
+    .filters{display:flex; gap:8px; flex-wrap:wrap}
+    .file-meta-col{display:flex;flex-direction:column;gap:6px}
+    .row-between{display:flex;justify-content:space-between;align-items:center}
+    .danger{background:#ff7b7b;color:#210000}
+    .pill{padding:6px 10px;border-radius:999px;background:rgba(255,255,255,0.02);font-size:13px}
+    .input-file{display:block}
+    .hidden{display:none}
+    @media (max-width:900px){ .grid{grid-template-columns:1fr; } header{flex-direction:column; align-items:flex-start;} }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Off the Shelf — E-learning Repository</h1>
+        <div class="muted small">Supplementary platform for PLM Nursing — local browser storage (IndexedDB)</div>
+      </div>
+      <div style="margin-left:auto" class="flex">
+        <button id="btn-export">Export Backup</button>
+        <button id="btn-import">Import Backup</button>
+        <button id="btn-admin-toggle" title="Admin login">Admin</button>
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- LEFT: Upload + Filters -->
+      <div class="card uploader" aria-labelledby="uploaderTitle">
+        <h3 id="uploaderTitle">Upload New Resource</h3>
+        <div class="muted small">Files will be faculty-reviewed before public availability (use Admin mode to review).</div>
+        <div style="height:8px"></div>
+
+        <label>Choose file <span class="muted small">(max 25 MB recommended)</span></label>
+        <input id="fileInput" type="file" class="input-file" />
+
+        <div style="height:8px"></div>
+        <label>Title</label>
+        <input id="title" placeholder="Short descriptive title (e.g., Health Assessment - Head & Neck NCP)"/>
+
+        <div class="row" style="margin-top:8px">
+          <div style="flex:1">
+            <label>Course</label>
+            <select id="course">
+              <option value="">-- choose course --</option>
+              <option>Health Assessment</option>
+              <option>Anatomy and Physiology</option>
+              <option>Basic Concepts in Nursing</option>
+              <option>Theoretical Foundations in Nursing</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div style="width:120px">
+            <label>Year Level</label>
+            <select id="year">
+              <option value="">-- year --</option>
+              <option>1</option>
+              <option>2</option>
+              <option>3</option>
+              <option>4</option>
+            </select>
+          </div>
+        </div>
+
+        <label style="margin-top:8px">Type</label>
+        <select id="type">
+          <option value="">-- type --</option>
+          <option>Lecture Notes</option>
+          <option>Return Demonstration</option>
+          <option>Video</option>
+          <option>Nursing Care Plan (NCP)</option>
+          <option>Other</option>
+        </select>
+
+        <label style="margin-top:8px">Description (optional)</label>
+        <textarea id="desc" rows="3" placeholder="Short description or learning objectives..."></textarea>
+
+        <div style="margin-top:8px">
+          <label><input id="consent" type="checkbox" /> I confirm participant consent/permission has been obtained for this file.</label>
+        </div>
+
+        <div style="margin-top:10px; display:flex; gap:8px;">
+          <button id="uploadBtn">Upload</button>
+          <button id="clearBtn" class="danger">Clear form</button>
+        </div>
+
+        <hr style="margin:12px 0; opacity:0.08" />
+
+        <h4>Filters & Search</h4>
+        <div class="search-row">
+          <input id="search" placeholder="Search title, description, course, type..." />
+          <select id="filterCourse"><option value="">All courses</option></select>
+          <select id="filterYear"><option value="">All years</option><option>1</option><option>2</option><option>3</option><option>4</option></select>
+        </div>
+        <div class="filters">
+          <button id="showAll" class="pill">Show all</button>
+          <button id="showReviewed" class="pill">Reviewed</button>
+          <button id="showPending" class="pill">Pending</button>
+        </div>
+
+        <footer>
+          <div class="muted small">This demo stores everything locally in your browser. For multi-user or university deployment, move this logic to a secure server and comply with the Data Privacy Act (store only required personal data, encrypt at rest, and secure access).</div>
+        </footer>
+      </div>
+
+      <!-- RIGHT: List, Preview -->
+      <div>
+        <div class="card" style="margin-bottom:12px;">
+          <div class="row-between">
+            <div>
+              <div class="muted small">Repository</div>
+              <h2 style="margin:4px 0">Files</h2>
+            </div>
+            <div class="muted small">Items: <span id="count">0</span></div>
+          </div>
+
+          <div style="height:12px"></div>
+          <div id="files" class="files-list"></div>
+        </div>
+
+        <div class="card">
+          <h3>Preview</h3>
+          <div id="previewArea" class="preview muted small">Select a file to preview it here.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hidden inputs for import -->
+    <input type="file" id="importFile" accept=".json" class="hidden" />
+
+    <!-- Admin Login Modal (simple client-side) -->
+    <div id="adminPrompt" class="hidden" style="position:fixed; inset:0; display:grid; place-items:center;">
+      <div style="background:var(--card); padding:18px; border-radius:12px; width:320px;">
+        <h3>Admin Login</h3>
+        <div class="muted small">Enter repository admin passcode (client-side only)</div>
+        <div style="height:10px"></div>
+        <input id="adminPass" placeholder="admin passcode" />
+        <div style="height:10px; display:flex; gap:8px; justify-content:flex-end;">
+          <button id="adminLogin">Login</button>
+          <button id="adminClose" class="danger">Close</button>
+        </div>
+        <div id="adminMessage" class="muted small" style="margin-top:8px"></div>
+      </div>
+    </div>
+
+  </div>
+
+<script>
+/*
+  Off the Shelf — Client-side repository
+  - Uses IndexedDB to store { id, title, course, year, type, desc, filename, mime, blob, reviewed, uploadedAt }
+  - Author: assistant (adapt for production: use server-side storage, authentication, TLS)
+*/
+
+const DB_NAME = 'plm-erepo';
+const DB_VER = 1;
+const STORE = 'files';
+const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25 MB recommended limit (adjust)
+
+let db;
+function openDB(){
+  return new Promise((res, rej) => {
+    const req = indexedDB.open(DB_NAME, DB_VER);
+    req.onupgradeneeded = e => {
+      const idb = e.target.result;
+      if(!idb.objectStoreNames.contains(STORE)){
+        const os = idb.createObjectStore(STORE, { keyPath: 'id', autoIncrement: true });
+        os.createIndex('title', 'title', { unique: false });
+        os.createIndex('course', 'course', { unique: false });
+        os.createIndex('year', 'year', { unique: false });
+        os.createIndex('type', 'type', { unique: false });
+        os.createIndex('reviewed', 'reviewed', { unique: false });
+      }
+    }
+    req.onsuccess = e => { db = e.target.result; res(db); };
+    req.onerror = e => rej(e.target.error);
+  });
+}
+
+function addFile(record){
+  return new Promise((res, rej) => {
+    const tx = db.transaction(STORE, 'readwrite');
+    const os = tx.objectStore(STORE);
+    const req = os.add(record);
+    req.onsuccess = () => res(req.result);
+    req.onerror = e => rej(e.target.error);
+  });
+}
+
+function getAllFiles(){
+  return new Promise((res, rej) => {
+    const tx = db.transaction(STORE, 'readonly');
+    const os = tx.objectStore(STORE);
+    const req = os.getAll();
+    req.onsuccess = () => res(req.result);
+    req.onerror = e => rej(e.target.error);
+  });
+}
+
+function updateFile(id, patch){
+  return new Promise((res, rej) => {
+    const tx = db.transaction(STORE, 'readwrite');
+    const os = tx.objectStore(STORE);
+    const getReq = os.get(id);
+    getReq.onsuccess = () => {
+      const rec = getReq.result;
+      if(!rec){ rej('not found'); return; }
+      Object.assign(rec, patch);
+      const putReq = os.put(rec);
+      putReq.onsuccess = () => res(putReq.result);
+      putReq.onerror = e => rej(e.target.error);
+    }
+    getReq.onerror = e => rej(e.target.error);
+  });
+}
+
+function deleteFile(id){
+  return new Promise((res, rej) => {
+    const tx = db.transaction(STORE, 'readwrite');
+    const os = tx.objectStore(STORE);
+    const req = os.delete(id);
+    req.onsuccess = () => res();
+    req.onerror = e => rej(e.target.error);
+  });
+}
+
+/* UI wiring */
+const fileInput = document.getElementById('fileInput');
+const uploadBtn = document.getElementById('uploadBtn');
+const clearBtn = document.getElementById('clearBtn');
+const filesArea = document.getElementById('files');
+const preview = document.getElementById('previewArea');
+const titleInput = document.getElementById('title');
+const courseInput = document.getElementById('course');
+const yearInput = document.getElementById('year');
+const typeInput = document.getElementById('type');
+const descInput = document.getElementById('desc');
+const consentInput = document.getElementById('consent');
+const searchInput = document.getElementById('search');
+const filterCourse = document.getElementById('filterCourse');
+const filterYear = document.getElementById('filterYear');
+const showAllBtn = document.getElementById('showAll');
+const showReviewedBtn = document.getElementById('showReviewed');
+const showPendingBtn = document.getElementById('showPending');
+const countSpan = document.getElementById('count');
+
+const btnExport = document.getElementById('btn-export');
+const btnImport = document.getElementById('btn-import');
+const importFile = document.getElementById('importFile');
+
+const btnAdmin = document.getElementById('btn-admin-toggle');
+const adminModal = document.getElementById('adminPrompt');
+const adminLoginBtn = document.getElementById('adminLogin');
+const adminCloseBtn = document.getElementById('adminClose');
+const adminPass = document.getElementById('adminPass');
+const adminMsg = document.getElementById('adminMessage');
+
+let currentFilter = 'all'; // all | reviewed | pending
+let adminMode = false;
+
+// simple client-only admin passcode handling (for demo only)
+const ADMIN_KEY = 'erepo_admin_on';
+const ADMIN_PASSCODE_KEY = 'erepo_admin_passcode'; // can be prepopulated
+// set default admin passcode if not set (you may change)
+if(!localStorage.getItem(ADMIN_PASSCODE_KEY)){
+  localStorage.setItem(ADMIN_PASSCODE_KEY, 'plm2025'); // change for production
+}
+
+btnAdmin.addEventListener('click', () => {
+  adminModal.classList.remove('hidden');
+});
+
+adminCloseBtn.addEventListener('click', () => { adminModal.classList.add('hidden'); adminMsg.textContent=''; adminPass.value=''; });
+
+adminLoginBtn.addEventListener('click', () => {
+  const p = adminPass.value || '';
+  if(p === localStorage.getItem(ADMIN_PASSCODE_KEY)){
+    adminMode = true;
+    localStorage.setItem(ADMIN_KEY, '1');
+    adminMsg.textContent = 'Admin mode ON';
+    adminModal.classList.add('hidden');
+    renderAll();
+  } else {
+    adminMsg.textContent = 'Incorrect passcode';
+  }
+});
+
+// allow toggling admin off quickly
+if(localStorage.getItem(ADMIN_KEY) === '1') adminMode = true;
+btnAdmin.addEventListener('contextmenu', (e) => { e.preventDefault(); adminMode = false; localStorage.removeItem(ADMIN_KEY); renderAll(); alert('Admin mode OFF'); });
+
+/* Fill course filter select dynamically */
+function populateCourseFilter(courses){
+  const set = new Set(['']); // keep empty
+  courses.forEach(c => { if(c) set.add(c); });
+  filterCourse.innerHTML = '';
+  set.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c;
+    opt.textContent = c || 'All courses';
+    filterCourse.appendChild(opt);
+  });
+}
+
+/* Upload flow */
+uploadBtn.addEventListener('click', async () => {
+  const file = fileInput.files[0];
+  const title = titleInput.value.trim();
+  const course = courseInput.value;
+  const year = yearInput.value;
+  const type = typeInput.value;
+  const desc = descInput.value.trim();
+  const consent = consentInput.checked;
+
+  if(!file){ alert('Please choose a file.'); return; }
+  if(!title){ alert('Please enter a title.'); return; }
+  if(!course){ alert('Please select a course.'); return; }
+  if(!year){ alert('Please select a year level.'); return; }
+  if(!type){ alert('Please select a file type.'); return; }
+  if(!consent){ if(!confirm('Consent checkbox not checked. Proceed anyway?')) return; }
+
+  if(file.size > MAX_FILE_SIZE){
+    if(!confirm('File is large (>' + (MAX_FILE_SIZE/1024/1024) + ' MB). Continue?')){}
+  }
+
+  // read blob as ArrayBuffer and store blob directly
+  const blob = file.slice(0, file.size, file.type);
+  const record = {
+    title, course, year, type, desc,
+    filename: file.name,
+    mime: file.type || 'application/octet-stream',
+    blob, // browsers store blobs in IndexedDB
+    reviewed: false,
+    uploadedAt: new Date().toISOString()
+  };
+
+  try{
+    await addFile(record);
+    clearForm();
+    renderAll();
+    alert('Uploaded successfully. Pending review.');
+  }catch(err){
+    console.error(err);
+    alert('Upload failed: ' + err);
+  }
+});
+
+clearBtn.addEventListener('click', clearForm);
+function clearForm(){
+  fileInput.value = '';
+  titleInput.value = '';
+  courseInput.value = '';
+  yearInput.value = '';
+  typeInput.value = '';
+  descInput.value = '';
+  consentInput.checked = false;
+}
+
+/* Render list */
+async function renderAll(){
+  const items = await getAllFiles();
+  // sorting newest first
+  items.sort((a,b)=> new Date(b.uploadedAt) - new Date(a.uploadedAt));
+  renderList(items);
+  // populate filters
+  populateCourseFilter(items.map(i => i.course));
+  countSpan.textContent = items.length;
+}
+
+function matchesFilter(item){
+  const q = searchInput.value.trim().toLowerCase();
+  if(currentFilter === 'reviewed' && !item.reviewed) return false;
+  if(currentFilter === 'pending' && item.reviewed) return false;
+  const cflt = filterCourse.value;
+  const yflt = filterYear.value;
+  if(cflt && item.course !== cflt) return false;
+  if(yflt && item.year !== yflt) return false;
+  if(q){
+    const hay = [item.title, item.desc, item.course, item.type, item.filename].filter(Boolean).join(' ').toLowerCase();
+    if(!hay.includes(q)) return false;
+  }
+  return true;
+}
+
+function humanSize(bytes){
+  if(bytes<1024) return bytes+' B';
+  if(bytes<1024*1024) return (bytes/1024).toFixed(1)+' KB';
+  return (bytes/(1024*1024)).toFixed(2)+' MB';
+}
+
+function renderList(allItems){
+  filesArea.innerHTML = '';
+  const visible = allItems.filter(matchesFilter);
+  visible.forEach(item => {
+    const el = document.createElement('div');
+    el.className = 'file-item';
+    const left = document.createElement('div');
+    left.style.flex = '1';
+    left.innerHTML = `
+      <div style="font-weight:700;">${escapeHtml(item.title)}</div>
+      <div class="file-meta-col muted small">
+        <div><span class="badge">${escapeHtml(item.course)}</span> <span class="badge">Year ${escapeHtml(item.year)}</span> <span class="badge">${escapeHtml(item.type)}</span></div>
+        <div>${escapeHtml(item.filename)} • ${item.mime || ''} • <span class="muted small">Uploaded ${new Date(item.uploadedAt).toLocaleString()}</span></div>
+      </div>
+    `;
+
+    const right = document.createElement('div');
+    right.className = 'actions';
+
+    const viewBtn = document.createElement('button'); viewBtn.textContent = 'View';
+    viewBtn.addEventListener('click', ()=> previewFile(item.id));
+
+    const dlBtn = document.createElement('button'); dlBtn.textContent = 'Download';
+    dlBtn.addEventListener('click', ()=> downloadFile(item.id));
+
+    const reviewBtn = document.createElement('button');
+    reviewBtn.textContent = item.reviewed ? 'Reviewed' : 'Mark Reviewed';
+    reviewBtn.title = adminMode ? 'Toggle review status' : 'Admin only (right-click Admin to turn off)';
+    reviewBtn.disabled = !adminMode;
+    reviewBtn.addEventListener('click', async ()=>{
+      await updateFile(item.id, { reviewed: !item.reviewed });
+      renderAll();
+    });
+
+    const delBtn = document.createElement('button'); delBtn.textContent = 'Delete';
+    delBtn.className = 'danger';
+    delBtn.disabled = !adminMode;
+    delBtn.addEventListener('click', async ()=>{
+      if(!confirm('Delete resource permanently?')) return;
+      await deleteFile(item.id);
+      renderAll();
+    });
+
+    right.appendChild(viewBtn);
+    right.appendChild(dlBtn);
+    right.appendChild(reviewBtn);
+    right.appendChild(delBtn);
+
+    el.appendChild(left);
+    el.appendChild(right);
+    filesArea.appendChild(el);
+  });
+
+  if(visible.length === 0) filesArea.innerHTML = '<div class="muted small">No items match your filter.</div>';
+}
+
+/* Preview and download helpers */
+async function previewFile(id){
+  const tx = db.transaction(STORE,'readonly');
+  const rec = await new Promise((res,rej)=>{
+    const req = tx.objectStore(STORE).get(id);
+    req.onsuccess = ()=>res(req.result);
+    req.onerror = e=>rej(e.target.error);
+  });
+  if(!rec){ preview.textContent = 'Not found'; return; }
+
+  // create object URL
+  const url = URL.createObjectURL(rec.blob);
+  const mime = rec.mime || '';
+  let html = `<div style="font-weight:700">${escapeHtml(rec.title)}</div><div class="muted small">File: ${escapeHtml(rec.filename)} • ${escapeHtml(rec.course)} • Year ${escapeHtml(rec.year)} • ${escapeHtml(rec.type)}</div><div style="height:8px"></div>`;
+
+  // rudimentary preview for some mime types
+  if(mime.startsWith('image/')){
+    html += `<img src="${url}" style="max-width:100%;border-radius:8px"/>`;
+  } else if(mime.startsWith('text/') || rec.filename.endsWith('.txt') || rec.filename.endsWith('.md')){
+    const text = await rec.blob.text();
+    html += `<pre style="white-space:pre-wrap; max-height:300px; overflow:auto; background:rgba(0,0,0,0.2); padding:8px; border-radius:6px;">${escapeHtml(text)}</pre>`;
+  } else if(mime === 'application/pdf' || rec.filename.endsWith('.pdf')){
+    html += `<iframe src="${url}" style="width:100%; height:360px; border:0; border-radius:8px"></iframe>`;
+  } else if(mime.startsWith('video/')){
+    html += `<video controls style="max-width:100%; height:auto"><source src="${url}" type="${mime}">Your browser cannot play this video.</video>`;
+  } else {
+    html += `<div class="muted small">Preview not available for this file type. Use the download button to open it.</div>`;
+  }
+
+  // buttons for download & approve (admin)
+  html += `<div style="height:8px"></div><div style="display:flex; gap:8px; margin-top:8px">`;
+  html += `<button id="pv-download">Download</button>`;
+  if(adminMode) html += `<button id="pv-toggle" style="background:${rec.reviewed? 'var(--accent)' : 'unset'}">Toggle Reviewed</button><button id="pv-delete" class="danger">Delete</button>`;
+  html += `</div>`;
+
+  preview.innerHTML = html;
+
+  document.getElementById('pv-download').addEventListener('click', ()=> downloadRec(rec));
+  if(adminMode){
+    document.getElementById('pv-toggle').addEventListener('click', async ()=>{
+      await updateFile(rec.id, { reviewed: !rec.reviewed });
+      renderAll(); previewFile(rec.id);
+    });
+    document.getElementById('pv-delete').addEventListener('click', async ()=>{
+      if(confirm('Delete this resource?')){ await deleteFile(rec.id); renderAll(); preview.innerHTML = 'Deleted.'; }
+    });
+  }
+}
+
+async function downloadFile(id){
+  const tx = db.transaction(STORE,'readonly');
+  const rec = await new Promise((res,rej)=>{
+    const req = tx.objectStore(STORE).get(id);
+    req.onsuccess = ()=>res(req.result);
+    req.onerror = e=>rej(e.target.error);
+  });
+  if(!rec) return alert('Not found');
+  downloadRec(rec);
+}
+
+function downloadRec(rec){
+  const url = URL.createObjectURL(rec.blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = rec.filename || ('resource-' + rec.id);
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+/* Simple search/filter bindings */
+searchInput.addEventListener('input', ()=> renderAll());
+filterCourse.addEventListener('change', ()=> renderAll());
+filterYear.addEventListener('change', ()=> renderAll());
+showAllBtn.addEventListener('click', ()=> { currentFilter='all'; renderAll(); });
+showReviewedBtn.addEventListener('click', ()=> { currentFilter='reviewed'; renderAll(); });
+showPendingBtn.addEventListener('click', ()=> { currentFilter='pending'; renderAll(); });
+
+/* Export / Import (backup) */
+btnExport.addEventListener('click', async ()=>{
+  const items = await getAllFiles();
+  // Convert blobs to base64 for export (may be large)
+  const out = [];
+  for(const it of items){
+    let b64 = await blobToBase64(it.blob);
+    out.push({
+      title: it.title, course: it.course, year: it.year, type: it.type, desc: it.desc,
+      filename: it.filename, mime: it.mime, reviewed: it.reviewed, uploadedAt: it.uploadedAt,
+      blobBase64: b64
+    });
+  }
+  const payload = { exportedAt: new Date().toISOString(), items: out };
+  const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'erepo-backup.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+});
+
+btnImport.addEventListener('click', ()=> importFile.click());
+importFile.addEventListener('change', async (e)=>{
+  const f = e.target.files[0];
+  if(!f) return;
+  const raw = await f.text();
+  try{
+    const payload = JSON.parse(raw);
+    if(!Array.isArray(payload.items)) throw new Error('Invalid backup format');
+    // confirm
+    if(!confirm('Import will append items to existing repository. Proceed?')) return;
+    for(const it of payload.items){
+      const blob = base64ToBlob(it.blobBase64, it.mime || 'application/octet-stream');
+      const rec = {
+        title: it.title, course: it.course, year: it.year, type: it.type, desc: it.desc,
+        filename: it.filename, mime: it.mime, blob, reviewed: !!it.reviewed, uploadedAt: it.uploadedAt || new Date().toISOString()
+      };
+      await addFile(rec);
+    }
+    renderAll();
+    alert('Import complete');
+  }catch(err){
+    console.error(err);
+    alert('Import failed: ' + err.message);
+  }
+  importFile.value = '';
+});
+
+/* Utilities */
+function blobToBase64(blob){
+  return new Promise((res,rej)=>{
+    const fr = new FileReader();
+    fr.onload = ()=> {
+      // fr.result like "data:<mime>;base64,AAAA..."
+      const s = fr.result.split(',')[1];
+      res(s);
+    }
+    fr.onerror = e => rej(e);
+    fr.readAsDataURL(blob);
+  });
+}
+function base64ToBlob(b64, mime){
+  const byteChars = atob(b64);
+  const byteNumbers = new Array(byteChars.length);
+  for(let i=0;i<byteChars.length;i++) byteNumbers[i] = byteChars.charCodeAt(i);
+  const u8 = new Uint8Array(byteNumbers);
+  return new Blob([u8], { type: mime });
+}
+function escapeHtml(s){ if(!s) return ''; return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+/* On load */
+(async ()=>{
+  await openDB();
+  await renderAll();
+})();
+
+/* Accessibility/UX extras */
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'Escape' && !adminModal.classList.contains('hidden')) adminModal.classList.add('hidden');
+});
+</script>
+</body>
+</html>
